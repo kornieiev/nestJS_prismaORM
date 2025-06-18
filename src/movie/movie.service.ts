@@ -5,6 +5,7 @@ import { In, Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { ActorEntity } from 'src/actor/entities/actor.entity';
+import { MoviePosterEntity } from './entities/poster.entity';
 
 @Injectable()
 export class MovieService {
@@ -13,6 +14,8 @@ export class MovieService {
     private readonly movieRepository: Repository<MovieEntity>,
     @InjectRepository(ActorEntity)
     private readonly actorRepository: Repository<ActorEntity>,
+    @InjectRepository(MoviePosterEntity)
+    private readonly moviePosterRepository: Repository<MoviePosterEntity>,
   ) {}
 
   async findAll(): Promise<MovieEntity[]> {
@@ -45,7 +48,7 @@ export class MovieService {
   }
 
   async create(dto: CreateMovieDto): Promise<MovieEntity> {
-    const { title, releaseYear, actorIds } = dto;
+    const { title, releaseYear, actorIds, imageUrl } = dto;
 
     // ищем всех актеров
     const actors = await this.actorRepository.find({
@@ -53,14 +56,21 @@ export class MovieService {
         id: In(actorIds),
       },
     });
-    console.log('actors', actors);
 
     if (!actors || !actors.length)
       throw new NotFoundException('Один или несколько актеров не найдены');
 
+    let poster: MoviePosterEntity | null = null;
+
+    if (imageUrl) {
+      poster = this.moviePosterRepository.create({ imageUrl });
+      await this.moviePosterRepository.save(poster);
+    }
+
     const movie = this.movieRepository.create({
       title,
       releaseYear,
+      poster,
       actors,
     });
 

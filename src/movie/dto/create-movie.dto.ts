@@ -6,6 +6,7 @@ import {
   Max,
   IsArray,
   IsUUID,
+  IsUrl,
 } from 'class-validator';
 
 export class CreateMovieDto {
@@ -22,4 +23,8 @@ export class CreateMovieDto {
   @IsArray()
   @IsUUID('4', { each: true })
   actorIds: string[];
+
+  @IsString()
+  @IsUrl()
+  imageUrl: string;
 }

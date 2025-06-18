@@ -4,12 +4,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { MoviePosterEntity } from './poster.entity';
 
 export enum Genre {
   ACTION = 'action',
@@ -64,9 +67,11 @@ export class MovieEntity {
   })
   isAvailable: boolean;
 
+  // OneToMany:
   @OneToMany(() => ReviewEntity, (review) => review.movie)
   reviews: ReviewEntity[];
 
+  // ManyToMany:
   @ManyToMany(() => ActorEntity, (actor) => actor.movies)
   @JoinTable({
     name: 'movie_actors', // имя промежуточной таблицы
@@ -74,6 +79,18 @@ export class MovieEntity {
     inverseJoinColumn: { name: 'actor_id', referencedColumnName: 'id' }, // колонка, которая ссылается на актера
   })
   actors: ActorEntity[];
+
+  // poster_id - столбец для связи с таблицей "poster"
+  @Column({ name: 'poster_id', type: 'uuid', nullable: true })
+  poster_id: string;
+
+  // OneToOne
+  @OneToOne(() => MoviePosterEntity, (poster) => poster.id, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'poster_id' })
+  poster: MoviePosterEntity | null;
 
   @CreateDateColumn({
     name: 'created_at',
