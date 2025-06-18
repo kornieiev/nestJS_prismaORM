@@ -1,0 +1,16 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#1E3307",
+    "titleBar.activeBackground": "#29480A",
+    "titleBar.activeForeground": "#F4FCEB"
+  },
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "typescript.suggest.enabled": true,
+  "javascript.suggest.enabled": true
+}
