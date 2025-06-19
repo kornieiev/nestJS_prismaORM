@@ -1,0 +1,109 @@
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URI")
+}
+
+model Movie {
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  releaseYear  Int         @map("release_year")
+  rating       Float       @default(0.0)
+  isAvailable  Boolean     @default(false) @map("is_available")
+  genre        Genre       @default(ACTION)
+
+  // One-To-Many:
+  reviews Review[]  @relation("movie_reviews") // для установки связи OneToMany с Review
+  // @relation("MovieReviews") - имя для связи
+
+  // Many-To-Many:
+  actors Actor[] @relation("movie_actors") // устанавливается связь с actors
+
+  // One-To-One:
+  poster MoviePoster @relation(fields: [posterId], references: [id])
+  posterId String @unique @map("poster-id") // устанавливается связь с poster
+
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+
+  @@map("movies")
+}
+
+// 3:38:35 - yarn prisma studio - утилита от призмы. позволяет через браузер смотреть созданные в БД таблицы
+// 3:39:18 - как описывать связи между записями
+// 3:40:20 - связь OneToMany
+// 3:43:18 - связь ManyToMany
+// 3:45:20 - связь OneToOne
+// 3:45:20 - про декораторы внутри таблиц
+// /   @@index([имя_поля]) // одиночный индекс позволяют ускорить поиск в БД по указанному полю.
+// /   @@index([имя_поля1, имя_поля2]) // составной индекс позволяют ускорить поиск в БД по указанным полям.
+// /   @@ignore // позволяет проигнорировать поле для призмы. при этом в БД будет отображаться. но не будет работать через призму. можно повесить как на всю таблицу так и на нужное поле
+// /   @@unique([movieId, userId]) // один пользователь сможет оставить один отзыв
+
+
+// OneToMany (Много review могут быть у одного movie)
+// https://youtu.be/HT6cm4GoSIw?t=13220
+model Review {
+  id           String      @id @default(uuid())
+  text         String
+  rating       Decimal     @default(0.0)
+
+  movie Movie @relation("movie_reviews", fields: [movieId], references: [id], onDelete:Cascade) // в качестве типа указывается таблица Movie.
+  // В references указывается поле для связи из другой таблицы
+  // onDelete:Cascade - при удалении фильма -удалятся и все отзывы, которые к нему принадлежат
+  // https://youtu.be/HT6cm4GoSIw?t=13260
+  // В fields указывается, какие поля в текущей моделе будут использоваться для связи с другой моделью (в данном случае это модель Movie)
+  movieId      String      @map("movie_id") // ID для связи OneToMany (у одного фильма много отзывов). К этому id будет привязываться фильм
+
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("reviews")
+}
+
+// ManyToMany (Многие actors могут быть во многих movies + много movies могут быть у многих actors)
+// https://youtu.be/HT6cm4GoSIw?t=13398
+model Actor {
+  id           String      @id @default(uuid())
+  name         String
+
+  movies Movie[] @relation("movie_actors") // устанавливается связь с movies
+  // @relation("movie_actors") указывается имя связи
+
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("actors")
+}
+
+// OneToOne (У одного фильма один постер и наоборот)
+// https://youtu.be/HT6cm4GoSIw?t=13522
+model MoviePoster {
+  id           String      @id @default(uuid())
+  imageUrl     String
+
+  movie Movie? @relation // устанавливается связь с movies
+  // @relation("movie_poster") указывается имя связи
+  // Movie? - отметит поле movie как необязательное
+
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("movie_posters")
+}
+
+enum Genre {
+  DRAMA
+  ACTION
+  COMEDY
+  HORROR
+
+  @@map("genres_enum")
+}
