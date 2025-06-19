@@ -19,15 +19,15 @@ model Movie {
   genre        Genre       @default(ACTION)
 
   // One-To-Many:
-  reviews Review[]  @relation("movie_reviews") // для установки связи OneToMany с Review
+  reviews      Review[]       @relation("movie_reviews") // для установки связи OneToMany с Review
   // @relation("MovieReviews") - имя для связи
 
   // Many-To-Many:
-  actors Actor[] @relation("movie_actors") // устанавливается связь с actors
+  actors       Actor[]        @relation("movie_actors") // устанавливается связь с actors
 
   // One-To-One:
-  poster MoviePoster @relation(fields: [posterId], references: [id])
-  posterId String @unique @map("poster-id") // устанавливается связь с poster
+  poster       MoviePoster?   @relation(fields: [posterId], references: [id])
+  posterId     String?        @unique @map("poster-id") // устанавливается связь с poster
 
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
