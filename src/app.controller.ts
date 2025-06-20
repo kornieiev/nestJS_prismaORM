@@ -12,7 +12,9 @@ import { StringToLowercasePipe } from './common/pipes/string-to-lowercase.pipe';
 import { AuthGuard } from './common/guards/auth.guard';
 import { UserAgent } from './common/decorators/user-agent.decorator';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('API-Custome-name') // Если нужно задать кастомное имя для Swagger
 @Controller('api')
 export class AppController {
   constructor(private readonly appService: AppService) {}
