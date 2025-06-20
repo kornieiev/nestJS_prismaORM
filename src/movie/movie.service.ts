@@ -1,15 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { Actor, MoviePoster } from 'generated/prisma';
+import { Actor } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Movie } from '@prisma/client';
 
 @Injectable()
 export class MovieService {
   constructor(private readonly prismaService: PrismaService) {}
+
   async findAll(): Promise<Movie[]> {
     console.log('first');
     return await this.prismaService.movie.findMany({
@@ -38,6 +37,7 @@ export class MovieService {
           select: { id: true, name: true },
         },
         poster: true,
+        reviews: true,
       },
     });
 
